@@ -14,6 +14,10 @@ public class ParamProxy {
 		param = new Param();
 	}
 
+	public ParamProxy(Param param){
+		this.param = param;
+	}
+
 	public ParamProxy(String name, String value){
 		param = new Param(name, value, STRING);
 	}

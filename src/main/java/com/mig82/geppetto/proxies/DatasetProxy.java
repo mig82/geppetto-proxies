@@ -1,28 +1,43 @@
 package com.mig82.geppetto.proxies;
 
 import com.konylabs.middleware.dataobject.Dataset;
+import com.konylabs.middleware.dataobject.Param;
+import com.konylabs.middleware.dataobject.Record;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DatasetProxy {
 
-	private final Dataset dataSet;
+	private final Dataset dataset;
 
 	public DatasetProxy(String id) {
-		dataSet = new Dataset();
-		dataSet.setId(id);
+		dataset = new Dataset();
+		dataset.setId(id);
 	}
 
-	public DatasetProxy(Dataset dataSet) {
-		this.dataSet = dataSet;
+	public DatasetProxy(Dataset dataset) {
+		this.dataset = dataset;
 	}
 
-	public Dataset getDataSet() {
-		return dataSet;
+	public Dataset getDataset() {
+		return dataset;
 	}
 
 	public DatasetProxy addRecord(RecordProxy record){
-		dataSet.addRecord(
+		dataset.addRecord(
 			record.getRecord()
 		);
+		return this;
+	}
+
+	public RecordProxy getRecord(int index){
+		return new RecordProxy(dataset.getAllRecords().get(index));
+	}
+
+	public DatasetProxy removeRecord(int index){
+		dataset.getRecords().remove(index);
 		return this;
 	}
 
@@ -30,5 +45,9 @@ public class DatasetProxy {
 		return new DatasetProxy(
 				result.getResult().getDatasetById(id)
 		);
+	}
+
+	public int size(){
+		return dataset.getAllRecords().size();
 	}
 }

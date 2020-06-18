@@ -60,10 +60,6 @@ public class ParamProxyTest {
 	}
 
 	@Test
-	public void testGetParam() throws Exception {
-	}
-
-	@Test
 	public void testCreateIntParam() throws Exception{
 		//Param param = new Param("foo", 1, "number"); //WTF doesn't this accept anything other than String?
 		Param param = new Param("foo", "999999999", "number");

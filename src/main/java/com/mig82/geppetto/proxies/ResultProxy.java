@@ -25,9 +25,17 @@ public class ResultProxy {
 		return this;
 	}
 
+	public RecordProxy getRecord(String name){
+		return new RecordProxy(result.getRecordById(name));
+	}
+
 	public ResultProxy addDataset(DatasetProxy dataset){
-		result.addDataset(dataset.getDataSet());
+		result.addDataset(dataset.getDataset());
 		return this;
+	}
+
+	public DatasetProxy getDataset(String name){
+		return new DatasetProxy(result.getDatasetById(name));
 	}
 
 	public ResultProxy addParam(String name, String value){
@@ -50,11 +58,54 @@ public class ResultProxy {
 		return this;
 	}
 
-	public ResultProxy addOk(){
-		addParam(new ParamProxy("httpStatusCode", 200));
+	public String getString(String name){
+		return result.getParamByName(name) != null ? result.getParamByName(name).getValue() : null;
+	}
+
+	public Boolean getBoolean(String name){
+		return result.getParamByName(name) != null ? Boolean.parseBoolean(result.getParamByName(name).getValue()) : null;
+	}
+
+	public Integer getInteger(String name){
+		return result.getParamByName(name) != null ? Integer.parseInt(result.getParamByName(name).getValue()) : null;
+	}
+
+	public Float getFloat(String name){
+		return result.getParamByName(name) != null ? Float.parseFloat(result.getParamByName(name).getValue()) : null;
+	}
+
+	public ResultProxy removeParam(String name){
+		result.removeParamByName(name);
 		return this;
 	}
 
+	public ResultProxy removeRecord(String name){
+		result.removeRecordById(name);
+		return this;
+	}
+
+	public ResultProxy removeDataset(String name){
+		result.removeDatasetById(name);
+		return this;
+	}
+
+	public ResultProxy addHttpStatusCode(String code){
+		addParam(new ParamProxy("httpStatusCode", code));
+		return this;
+	}
+
+	public ResultProxy addHttpOk(){
+		addHttpStatusCode("200");
+		return this;
+	}
+
+	public ResultProxy addParamToRecord(String recordName, ParamProxy param){
+		if(result.getRecordById(recordName) == null){
+			addRecord(new RecordProxy(recordName));
+		}
+		getRecord(recordName).addParam(param);
+		return this;
+	}
 	/**
 	 * Adds a record to a dataset by a given name. If no dataset exists by this name, a new dataset is created
 	 * and the record is added to it.
@@ -73,14 +124,18 @@ public class ResultProxy {
 	public ResultProxy addException(Exception e){
 
 		addRecordToDataset("exceptions", new RecordProxy()
-			.addParam("opstatus", 10500)
-			.addParam("httpStatusCode", 500)
+			.addParam("opstatus", "10500")
+			.addParam("httpStatusCode", "500")
 			.addParam("message", e.getMessage())
 			.addParam("class", e.getClass().getCanonicalName())
 			.addParam("stack", ExceptionUtils.getStackTrace(e))
 		);
 
 		return this;
+	}
+
+	public DatasetProxy getExceptions() {
+		return getDataset("exceptions");
 	}
 
 	public ResultProxy addDebugStuff(MapProxy cfgMap, MapProxy inMap, MapProxy outMap, MapProxy headers){
