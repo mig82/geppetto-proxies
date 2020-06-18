@@ -93,4 +93,10 @@ public class RecordProxy {
 	public Float getFloat(String name){
 		return record.getParam(name) != null ? Float.parseFloat(record.getParam(name).getValue()) : null;
 	}
+
+	public ParamProxy popParam(String name){
+		ParamProxy param = getParam(name);
+		removeParam(name);
+		return param;
+	}
 }

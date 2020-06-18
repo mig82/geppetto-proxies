@@ -76,4 +76,14 @@ public class RecordProxyTest {
 		record.removeParam("foo");
 		assertNull(record.getRecord().getParam("foo"));
 	}
+
+	@Test
+	public void testPopParam() throws Exception {
+		RecordProxy record = new RecordProxy()
+				.addParam("foo", "foo-1");
+		ParamProxy param = record.popParam("foo");
+
+		assertEquals(param.getParam().getValue(), "foo-1");
+		assertNull(record.getParam("foo").getParam());
+	}
 }

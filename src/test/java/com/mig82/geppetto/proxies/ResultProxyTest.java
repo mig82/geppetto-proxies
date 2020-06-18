@@ -183,4 +183,14 @@ public class ResultProxyTest {
 			assertNotNull(result.getExceptions().getRecord(1).getString("stack"));
 		}
 	}
+
+	@Test
+	public void testPopParam() throws Exception {
+		ResultProxy result = new ResultProxy()
+				.addParam("foo", "foo-1");
+		ParamProxy param = result.popParam("foo");
+
+		assertEquals(param.getParam().getValue(), "foo-1");
+		assertNull(result.getParam("foo").getParam());
+	}
 }

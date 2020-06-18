@@ -16,6 +16,10 @@ public class MapProxy {
 
 	private Map<String, Object> map;
 
+	public MapProxy(){
+		this(new HashMap<String, Object>());
+	}
+
 	public MapProxy(Map<String, Object> map){
 		this.map = map;
 	}
@@ -40,45 +44,115 @@ public class MapProxy {
 
 	}
 
-	//TODO: Make this case insensitive.
+	public void put(String key, Object value) {
+		map.put(key, value);
+	}
+
+	public Boolean containsKey(String key){
+		return containsKey(key, false);
+	}
+
+	public Boolean containsKey(String key, Boolean ignoreCase){
+		Boolean found = false;
+		if (map.containsKey(key)){
+			found = true;
+		}
+		else if(ignoreCase){
+			found = getRealKey(key) == null ? false : true;
+		}
+		return found;
+	}
+
+	public String getRealKey(String key){
+		String realKey = null;
+		if (map.containsKey(key)) {
+			realKey = key;
+		}
+		else {
+			for (Map.Entry<String, Object> entry : map.entrySet()) {
+				if(entry.getKey().toUpperCase().equals(key.toUpperCase())){
+					realKey = entry.getKey();
+					break;
+				}
+			}
+		}
+		return realKey;
+	}
+
+	public String getString(String key) {
+		return getString(key, null);
+	}
+
 	public String getString(String key, String defaultValue){
-		return map.containsKey(key) ? (String)map.get(key) : defaultValue;
+		String realKey = getRealKey(key);
+		return realKey != null ? (String)map.get(realKey) : defaultValue;
+	}
+
+	public Boolean getBoolean(String key) {
+		return getBoolean(key, null);
 	}
 
 	public Boolean getBoolean(String key, Boolean defaultValue){
 
 		Boolean booleanValue = defaultValue;
 
-		if(map.containsKey(key)){
-			if(map.get(key) instanceof Boolean){
-				booleanValue = (Boolean)map.get(key);
+		String realKey = getRealKey(key);
+		if(realKey != null){
+			if(map.get(realKey) instanceof Boolean){
+				booleanValue = (Boolean)map.get(realKey);
 			}
-			else if (map.get(key) instanceof String){
-				booleanValue = Boolean.parseBoolean((String)map.get(key));
+			else if (map.get(realKey) instanceof String){
+				booleanValue = Boolean.parseBoolean((String)map.get(realKey));
 			}
 		}
 		return booleanValue;
+	}
+
+	public Integer getInteger(String key) {
+		return getInteger(key, null);
 	}
 
 	public Integer getInteger(String key, Integer defaultValue){
 
 		Integer integerValue = defaultValue;
 
-		if(map.containsKey(key)){
-			if(map.get(key) instanceof Integer){
-				integerValue = (Integer)map.get(key);
+		String realKey = getRealKey(key);
+		if(realKey != null){
+			if(map.get(realKey) instanceof Integer){
+				integerValue = (Integer)map.get(realKey);
 			}
-			else if (map.get(key) instanceof String){
-				integerValue = Integer.parseInt((String)map.get(key));
+			else if (map.get(realKey) instanceof String){
+				integerValue = Integer.parseInt((String)map.get(realKey));
 			}
 		}
 		return integerValue;
 	}
 
-	public Map<String, Object> getMap(String key){
+	public Float getFloat(String key) {
+		return getFloat(key, null);
+	}
 
-		if(map.containsKey(key) && map.get(key) != null){
-			String json = (String)map.get(key);
+	public Float getFloat(String key, Float defaultValue){
+
+		Float integerValue = defaultValue;
+
+		String realKey = getRealKey(key);
+		if(realKey != null){
+			if(map.get(realKey) instanceof Float){
+				integerValue = (Float)map.get(realKey);
+			}
+			else if (map.get(realKey) instanceof String){
+				integerValue = Float.parseFloat((String)map.get(realKey));
+			}
+		}
+		return integerValue;
+	}
+
+	public Map<String, Object> parseMapFromJson(String key){
+
+		String realKey = getRealKey(key);
+		if(realKey != null && map.get(realKey) != null){
+			String json = (String)map.get(realKey);
 			return JsonHelper.toMap(json);
 		}
 		else{
@@ -86,10 +160,11 @@ public class MapProxy {
 		}
 	}
 
-	public Collection<String> getStringCollection(String key){
+	public Collection<String> parseStringCollectionFromJson(String key){
 
-		if(map.containsKey(key) && map.get(key) != null){
-			String json = (String)map.get(key);
+		String realKey = getRealKey(key);
+		if(realKey != null && map.get(realKey) != null){
+			String json = (String)map.get(realKey);
 			return JsonHelper.toStringCollection(json);
 		}
 		else{
@@ -97,10 +172,11 @@ public class MapProxy {
 		}
 	}
 
-	public Collection<Integer> getIntCollection(String key){
+	public Collection<Integer> parseIntCollectionFromJson(String key){
 
-		if(map.containsKey(key) && map.get(key) != null){
-			String json = (String)map.get(key);
+		String realKey = getRealKey(key);
+		if(realKey != null && map.get(realKey) != null){
+			String json = (String)map.get(realKey);
 			return JsonHelper.toIntCollection(json);
 		}
 		else{
@@ -111,10 +187,11 @@ public class MapProxy {
 	/**
 	 * Retrieves a value from the map and parses is into a Collection of Maps -e.g.: [{"a":1, "b": "foo"}, {"c":3}].
 	 * */
-	public Collection<Map<String, Object>> getMapCollection(String key){
+	public Collection<Map<String, Object>> parseMapCollectionFromJson(String key){
 
-		if(map.containsKey(key) && map.get(key) != null){
-			String json = (String)map.get(key);
+		String realKey = getRealKey(key);
+		if(realKey != null && map.get(realKey) != null){
+			String json = (String)map.get(realKey);
 			return JsonHelper.toCollection(json);
 		}
 		else{
@@ -127,8 +204,9 @@ public class MapProxy {
 	 * This is specially useful for determining what type is Fabric receiving a parameter as.
 	 * */
 	public String getClassName(String key){
-		if(map.containsKey(key) && map.get(key) != null){
-			return map.get(key).getClass().getCanonicalName();
+		String realKey = getRealKey(key);
+		if(realKey != null){
+			return map.get(realKey).getClass().getCanonicalName();
 		}
 		else{
 			return null;

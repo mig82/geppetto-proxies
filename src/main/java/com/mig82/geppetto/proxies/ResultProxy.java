@@ -58,6 +58,10 @@ public class ResultProxy {
 		return this;
 	}
 
+	public ParamProxy getParam(String name){
+		return new ParamProxy(result.getParamByName(name));
+	}
+
 	public String getString(String name){
 		return result.getParamByName(name) != null ? result.getParamByName(name).getValue() : null;
 	}
@@ -150,5 +154,11 @@ public class ResultProxy {
 			);
 		}
 		return this;
+	}
+
+	public ParamProxy popParam(String name){
+		ParamProxy param = getParam(name);
+		removeParam(name);
+		return param;
 	}
 }
